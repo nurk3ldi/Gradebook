@@ -35,6 +35,7 @@ export default function ForgotPassword() {
     <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
         <Input
+          className="w-full"
           type="email"
           name="email"
           placeholder="Почта"
@@ -42,10 +43,10 @@ export default function ForgotPassword() {
           required
         />
         {error && <ErrorText>{error}</ErrorText>}
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Отправка…" : "Отправить код"}
         </Button>
-        <LinkButton to="/login">Войти</LinkButton>
+        <LinkButton className="w-full" to="/login">Войти</LinkButton>
       </form>
     </main>
   );

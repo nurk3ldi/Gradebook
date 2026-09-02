@@ -44,7 +44,7 @@ export default function ResetPassword() {
       <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
         <div className="w-full max-w-xs space-y-3">
           <p className="text-center text-xs text-neutral-500">Пароль обновлён</p>
-          <LinkButton to="/login">Войти</LinkButton>
+          <LinkButton className="w-full" to="/login">Войти</LinkButton>
         </div>
       </main>
     );
@@ -57,6 +57,7 @@ export default function ResetPassword() {
           Код отправлен на {email}
         </p>
         <Input
+          className="w-full"
           type="text"
           name="code"
           placeholder="Код из письма"
@@ -67,6 +68,7 @@ export default function ResetPassword() {
           required
         />
         <Input
+          className="w-full"
           type="password"
           name="password"
           placeholder="Новый пароль"
@@ -75,6 +77,7 @@ export default function ResetPassword() {
           required
         />
         <Input
+          className="w-full"
           type="password"
           name="passwordConfirm"
           placeholder="Повторите пароль"
@@ -83,10 +86,10 @@ export default function ResetPassword() {
           required
         />
         {error && <ErrorText>{error}</ErrorText>}
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Сохранение…" : "Сохранить пароль"}
         </Button>
-        <LinkButton to="/forgot-password">Отправить код заново</LinkButton>
+        <LinkButton className="w-full" to="/forgot-password">Отправить код заново</LinkButton>
       </form>
     </main>
   );

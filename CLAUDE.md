@@ -64,6 +64,11 @@ npm run build
   `--color-accent` пен `--color-accent-hover`. Tailwind олардан `bg-accent`,
   `text-accent`, `border-accent` кластарын жасайды. Түсті ауыстыру — сол екі жол.
   Акцент тек негізгі әрекетте: басты кнопка, өріс фокусы, ағымдағы навигация.
+- **Бет құрылымы**: `Header` → `main.mx-auto.max-w-4xl.space-y-4.px-4.py-8` →
+  `h1` (бет аты) → `Card` блоктары. Форма — өз карточкасында, тізім — `flush`
+  карточкада `divide-y` арқылы. Бос тізімге `Empty` компоненті.
+- `index.css` ішіндегі base қабатта: түймелерге `cursor: pointer`,
+  `:focus-visible` контуры, `prefers-reduced-motion` құрметтелуі.
 
 ## Рөлдер
 

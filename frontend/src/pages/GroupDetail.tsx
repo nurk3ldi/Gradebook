@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 
 import { Button } from "../components/Button";
+import { Card, Empty } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
 import { Header } from "../components/Header";
 import { Input } from "../components/Input";
@@ -69,7 +70,7 @@ export default function GroupDetail() {
     }
   }
 
-  async function handleAddExisting(event: FormEvent<HTMLFormElement>) {
+  async function handleAddStudent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const email = new FormData(event.currentTarget).get("email");
     if (!email) return;
@@ -119,75 +120,112 @@ export default function GroupDetail() {
   return (
     <div className="min-h-dvh bg-neutral-50">
       <Header user={user} onLogout={logout} />
-      <main className="mx-auto max-w-3xl space-y-6 px-4 py-6">
+      <main className="mx-auto max-w-4xl space-y-4 px-4 py-8">
+        <Link
+          to="/groups"
+          className="inline-block text-xs text-neutral-500 transition-colors duration-150 hover:text-accent"
+        >
+          ← Группы
+        </Link>
+
         {group && (
           <>
-            <form onSubmit={handleSave} className="flex flex-wrap gap-2">
-              <Input
-                type="text"
-                name="name"
-                defaultValue={group.name}
-                placeholder="Название группы"
-                required
-              />
-              {user?.role === "admin" && (
-                <Select name="teacher_id" defaultValue={group.teacher?.id ?? ""}>
-                  <option value="">Без преподавателя</option>
-                  {teachers.map((teacher) => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.full_name ?? teacher.email}
-                    </option>
-                  ))}
-                </Select>
-              )}
-              <Button type="submit">Сохранить</Button>
-              <button
-                type="button"
-                onClick={() => void handleDeleteGroup()}
-                className="text-xs text-neutral-400 transition-colors duration-150 hover:text-red-600"
-              >
-                Удалить группу
-              </button>
-            </form>
-
-            <form onSubmit={handleAddExisting} className="flex flex-wrap gap-2">
-              <Select name="email" disabled={available.length === 0}>
-                {available.length === 0 && <option value="">Нет свободных студентов</option>}
-                {available.map((student) => (
-                  <option key={student.id} value={student.email}>
-                    {student.full_name ? `${student.full_name} — ` : ""}
-                    {student.email}
-                  </option>
-                ))}
-              </Select>
-              <Button type="submit" disabled={loading || available.length === 0}>
-                {loading ? "Добавление…" : "Добавить"}
-              </Button>
-            </form>
+            <div>
+              <h1 className="text-lg font-medium text-neutral-900">{group.name}</h1>
+              <p className="text-xs text-neutral-500">
+                {group.teacher?.full_name ??
+                  group.teacher?.email ??
+                  "Без преподавателя"}{" "}
+                · {group.students.length} студентов
+              </p>
+            </div>
 
             {error && <ErrorText>{error}</ErrorText>}
 
-            <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 bg-white">
-              {group.students.map((student) => (
-                <li key={student.id} className="flex items-center gap-3 px-3 py-2">
-                  <span className="w-56 truncate text-sm text-neutral-900">
-                    {student.email}
-                  </span>
-                  <span className="flex-1 truncate text-xs text-neutral-500">
-                    {student.full_name ?? "—"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => void handleRemoveStudent(student.id, student.email)}
-                    className="text-xs text-neutral-400 transition-colors duration-150 hover:text-red-600"
-                  >
-                    Удалить
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <Card title="Настройки">
+              <form onSubmit={handleSave} className="flex flex-wrap items-center gap-2">
+                <Input
+                  type="text"
+                  name="name"
+                  defaultValue={group.name}
+                  placeholder="Название"
+                  className="w-48"
+                  required
+                />
+                {user?.role === "admin" && (
+                  <Select name="teacher_id" defaultValue={group.teacher?.id ?? ""}>
+                    <option value="">Без преподавателя</option>
+                    {teachers.map((teacher) => (
+                      <option key={teacher.id} value={teacher.id}>
+                        {teacher.full_name ?? teacher.email}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+                <Button type="submit">Сохранить</Button>
+                <button
+                  type="button"
+                  onClick={() => void handleDeleteGroup()}
+                  className="ml-auto text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600"
+                >
+                  Удалить группу
+                </button>
+              </form>
+            </Card>
+
+            <Card title={`Студенты · ${group.students.length}`} flush>
+              <form
+                onSubmit={handleAddStudent}
+                className="flex flex-wrap items-center gap-2 border-b border-neutral-200 p-4"
+              >
+                <Select name="email" disabled={available.length === 0}>
+                  {available.length === 0 && (
+                    <option value="">Нет свободных студентов</option>
+                  )}
+                  {available.map((student) => (
+                    <option key={student.id} value={student.email}>
+                      {student.full_name ? `${student.full_name} — ` : ""}
+                      {student.email}
+                    </option>
+                  ))}
+                </Select>
+                <Button type="submit" disabled={loading || available.length === 0}>
+                  {loading ? "Добавление…" : "Добавить"}
+                </Button>
+              </form>
+
+              {group.students.length === 0 ? (
+                <Empty>В группе пока нет студентов</Empty>
+              ) : (
+                <ul className="divide-y divide-neutral-200">
+                  {group.students.map((student) => (
+                    <li
+                      key={student.id}
+                      className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-neutral-50"
+                    >
+                      <span className="w-56 truncate text-sm text-neutral-900">
+                        {student.full_name ?? student.email}
+                      </span>
+                      <span className="flex-1 truncate text-xs text-neutral-500">
+                        {student.full_name ? student.email : "—"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void handleRemoveStudent(student.id, student.email)
+                        }
+                        className="text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600"
+                      >
+                        Убрать
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
           </>
         )}
+
         {!group && error && <ErrorText>{error}</ErrorText>}
       </main>
     </div>
