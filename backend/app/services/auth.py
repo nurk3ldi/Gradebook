@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models import PasswordResetCode, User
+from app.roles import Role, STUDENT
 from app.security import (
     create_token,
     decode_token,
@@ -32,11 +33,22 @@ async def get_by_email(db: AsyncSession, email: str) -> User | None:
     return await db.scalar(select(User).where(User.email == email))
 
 
-async def register(db: AsyncSession, email: str, password: str) -> User:
+async def register(
+    db: AsyncSession,
+    email: str,
+    password: str,
+    role: Role = STUDENT,
+    full_name: str | None = None,
+) -> User:
     if await get_by_email(db, email):
         raise EmailAlreadyUsed
 
-    user = User(email=email, password_hash=hash_password(password))
+    user = User(
+        email=email,
+        password_hash=hash_password(password),
+        role=role,
+        full_name=full_name,
+    )
     db.add(user)
     await db.commit()
     await db.refresh(user)

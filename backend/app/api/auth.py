@@ -1,10 +1,7 @@
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, status
 
-from fastapi import APIRouter, Depends, HTTPException, status
-
-from app.api.deps import Db, get_current_user
+from app.api.deps import Db
 from app.config import settings
-from app.models import User
 from app.schemas.auth import (
     ForgotPasswordRequest,
     LoginRequest,
@@ -12,7 +9,6 @@ from app.schemas.auth import (
     RegisterRequest,
     ResetPasswordRequest,
     TokenResponse,
-    UserResponse,
 )
 from app.services import auth as auth_service, email as email_service
 from app.services.auth import EmailAlreadyUsed, InvalidResetCode, TooManyAttempts
@@ -71,7 +67,3 @@ async def reset_password(data: ResetPasswordRequest, db: Db) -> MessageResponse:
         ) from None
     return MessageResponse(message="Пароль обновлён")
 
-
-@router.get("/me")
-async def me(user: Annotated[User, Depends(get_current_user)]) -> UserResponse:
-    return UserResponse.model_validate(user)

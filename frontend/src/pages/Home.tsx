@@ -1,38 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-
 import { Header } from "../components/Header";
-import { api } from "../lib/api";
-import { clearToken, getToken } from "../lib/auth";
-
-type User = { id: number; email: string; role: string };
+import { useSession } from "../lib/session";
+import { ROLE_LABELS } from "../lib/types";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (!getToken()) {
-      navigate("/login", { replace: true });
-      return;
-    }
-    api<User>("/api/auth/me")
-      .then(setUser)
-      .catch(() => {
-        clearToken();
-        navigate("/login", { replace: true });
-      });
-  }, [navigate]);
-
-  function handleLogout() {
-    clearToken();
-    navigate("/login", { replace: true });
-  }
+  const { user, logout } = useSession();
 
   return (
     <div className="min-h-dvh bg-neutral-50">
-      <Header email={user?.email} onLogout={handleLogout} />
-      <main className="px-4 py-6" />
+      <Header user={user} onLogout={logout} />
+      <main className="px-4 py-6">
+        {user && (
+          <p className="text-xs text-neutral-500">{ROLE_LABELS[user.role]}</p>
+        )}
+      </main>
     </div>
   );
 }

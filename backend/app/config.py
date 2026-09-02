@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     debug: bool = True
 
+    # Осы поштамен тіркелген пайдаланушылар admin рөлін алады.
+    admin_emails: list[str] = []
+
     # SMTP. Бос болса — пошта жіберілмей, код серверлогына жазылады (дев режимі).
     smtp_host: str = ""
     smtp_port: int = 587

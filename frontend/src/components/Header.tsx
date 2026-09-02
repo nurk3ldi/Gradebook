@@ -1,14 +1,30 @@
+import { Link } from "react-router";
+
+import type { User } from "../lib/types";
+
 type Props = {
-  email?: string;
+  user: User | null;
   onLogout: () => void;
 };
 
-export function Header({ email, onLogout }: Props) {
+export function Header({ user, onLogout }: Props) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4">
-      <span className="text-sm font-medium text-neutral-900">GradeBook</span>
+      <div className="flex items-center gap-6">
+        <Link to="/" className="text-sm font-medium text-neutral-900">
+          GradeBook
+        </Link>
+        {user?.role === "admin" && (
+          <Link
+            to="/users"
+            className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
+          >
+            Пользователи
+          </Link>
+        )}
+      </div>
       <div className="flex items-center gap-4">
-        {email && <span className="text-xs text-neutral-500">{email}</span>}
+        {user && <span className="text-xs text-neutral-500">{user.email}</span>}
         <button
           type="button"
           onClick={onLogout}
