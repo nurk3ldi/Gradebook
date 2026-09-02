@@ -7,8 +7,8 @@ from app.models import User
 from app.roles import ADMIN, STUDENT, TEACHER, Role
 from app.schemas.user import (
     CreateUserRequest,
-    SetRoleRequest,
     UpdateProfileRequest,
+    UpdateUserRequest,
     UserResponse,
 )
 from app.services import auth as auth_service, user as user_service
@@ -47,32 +47,6 @@ async def create_user(
     return UserResponse.model_validate(user)
 
 
-@router.patch("/{user_id}/role")
-async def set_role(
-    user_id: int, data: SetRoleRequest, db: Db, admin: AdminUser
-) -> UserResponse:
-    if user_id == admin.id:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Нельзя изменить собственную роль"
-        )
-
-    user = await user_service.set_role(db, user_id, data.role)
-    if user is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
-    return UserResponse.model_validate(user)
-
-
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, db: Db, admin: AdminUser) -> None:
-    if user_id == admin.id:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Нельзя удалить собственный аккаунт"
-        )
-
-    if not await user_service.delete_user(db, user_id):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
-
-
 @router.get("/me")
 async def me(user: CurrentUser) -> UserResponse:
     return UserResponse.model_validate(user)
@@ -87,3 +61,36 @@ async def update_me(
     await db.commit()
     await db.refresh(user)
     return UserResponse.model_validate(user)
+
+
+@router.patch("/{user_id}")
+async def update_user(
+    user_id: int, data: UpdateUserRequest, db: Db, admin: AdminUser
+) -> UserResponse:
+    changes = data.model_dump(exclude_unset=True)
+    if user_id == admin.id and changes.get("role") not in (None, admin.role):
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Нельзя изменить собственную роль"
+        )
+
+    try:
+        user = await user_service.update_user(db, user_id, changes)
+    except EmailAlreadyUsed:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "Такая почта уже зарегистрирована"
+        ) from None
+
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
+    return UserResponse.model_validate(user)
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id: int, db: Db, admin: AdminUser) -> None:
+    if user_id == admin.id:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Нельзя удалить собственный аккаунт"
+        )
+
+    if not await user_service.delete_user(db, user_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")

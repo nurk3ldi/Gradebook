@@ -4,8 +4,8 @@ import { Link } from "react-router";
 import { Button } from "../components/Button";
 import { Card, Empty } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
-import { Layout } from "../components/Layout";
 import { Input } from "../components/Input";
+import { Layout } from "../components/Layout";
 import { Select } from "../components/Select";
 import { api } from "../lib/api";
 import { useSession } from "../lib/session";
@@ -15,6 +15,7 @@ export default function Groups() {
   const { user, logout } = useSession();
   const [groups, setGroups] = useState<Group[]>([]);
   const [teachers, setTeachers] = useState<User[]>([]);
+  const [editing, setEditing] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +63,27 @@ export default function Groups() {
     }
   }
 
+  async function handleUpdate(event: FormEvent<HTMLFormElement>, id: number) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const teacherId = data.get("teacher_id");
+
+    setError("");
+    try {
+      await api(`/api/groups/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: data.get("name"),
+          teacher_id: teacherId ? Number(teacherId) : null,
+        }),
+      });
+      setEditing(null);
+      await load();
+    } catch (caught) {
+      setError((caught as Error).message);
+    }
+  }
+
   async function handleDelete(id: number, name: string) {
     if (!confirm(`Удалить группу «${name}»?`)) return;
 
@@ -75,63 +97,108 @@ export default function Groups() {
   }
 
   return (
-    <Layout
-      user={user}
-      onLogout={logout}
-      title="Группы"
-      subtitle="Учебные группы и их студенты"
-    >
-        <Card title="Новая группа">
-          <form onSubmit={handleCreate} className="flex flex-wrap items-center gap-2">
-            <Input
-              type="text"
-              name="name"
-              placeholder="Название"
-              className="w-48"
-              required
-            />
-            {user?.role === "admin" && (
-              <Select name="teacher_id" defaultValue="">
-                <option value="">Без преподавателя</option>
-                {teachers.map((teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.full_name ?? teacher.email}
-                  </option>
-                ))}
-              </Select>
-            )}
-            <Button type="submit" disabled={loading}>
-              {loading ? "Создание…" : "Создать"}
-            </Button>
-          </form>
-        </Card>
+    <Layout user={user} onLogout={logout} title="Группы">
+      <Card title="Новая группа">
+        <form onSubmit={handleCreate} className="flex flex-wrap items-center gap-2">
+          <Input
+            type="text"
+            name="name"
+            placeholder="Название"
+            className="w-48"
+            required
+          />
+          {user?.role === "admin" && (
+            <Select name="teacher_id" defaultValue="">
+              <option value="">Без преподавателя</option>
+              {teachers.map((teacher) => (
+                <option key={teacher.id} value={teacher.id}>
+                  {teacher.full_name ?? teacher.email}
+                </option>
+              ))}
+            </Select>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Создание…" : "Создать"}
+          </Button>
+        </form>
+      </Card>
 
-        {error && <ErrorText>{error}</ErrorText>}
+      {error && <ErrorText>{error}</ErrorText>}
 
-        <Card title={`Все группы · ${groups.length}`} flush>
-          {groups.length === 0 ? (
-            <Empty>Пока нет ни одной группы</Empty>
-          ) : (
-            <ul className="divide-y divide-line">
-              {groups.map((group) => (
+      <Card title={`Все группы · ${groups.length}`} flush>
+        {groups.length === 0 ? (
+          <Empty>Пока нет ни одной группы</Empty>
+        ) : (
+          <ul className="divide-y divide-line">
+            {groups.map((group) =>
+              editing === group.id ? (
+                <li key={group.id} className="px-5 py-3.5">
+                  <form
+                    onSubmit={(event) => void handleUpdate(event, group.id)}
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    <Input
+                      type="text"
+                      name="name"
+                      defaultValue={group.name}
+                      placeholder="Название"
+                      className="w-48"
+                      required
+                      autoFocus
+                    />
+                    {user?.role === "admin" && (
+                      <Select name="teacher_id" defaultValue={group.teacher?.id ?? ""}>
+                        <option value="">Без преподавателя</option>
+                        {teachers.map((teacher) => (
+                          <option key={teacher.id} value={teacher.id}>
+                            {teacher.full_name ?? teacher.email}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                    <Button type="submit">Сохранить</Button>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(null)}
+                      className="text-sm text-muted transition-colors duration-150 hover:text-ink"
+                    >
+                      Отмена
+                    </button>
+                  </form>
+                </li>
+              ) : (
                 <li
                   key={group.id}
                   className="flex items-center gap-3 px-5 py-3.5 transition-colors duration-150 hover:bg-canvas"
                 >
                   <Link
                     to={`/groups/${group.id}`}
-                    className="w-44 truncate text-sm text-ink transition-colors duration-150 hover:text-ink"
+                    className="w-44 truncate text-sm font-medium text-ink transition-colors duration-150 hover:text-muted"
                   >
                     {group.name}
                   </Link>
                   <span className="flex-1 truncate text-sm text-muted">
-                    {group.teacher?.full_name ??
-                      group.teacher?.email ??
-                      "Без преподавателя"}
+                    {group.teacher ? (
+                      <>
+                        Преподаватель:{" "}
+                        <span className="font-medium text-ink">
+                          {group.teacher.full_name ?? group.teacher.email}
+                        </span>
+                      </>
+                    ) : (
+                      "Преподаватель не назначен"
+                    )}
                   </span>
                   <span className="text-sm text-muted">
                     {group.students_count} студ.
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setEditing(group.id)}
+                    className="text-sm text-muted transition-colors duration-150 hover:text-ink"
+                  >
+                    Изменить
+                  </button>
                   <button
                     type="button"
                     onClick={() => void handleDelete(group.id, group.name)}
@@ -140,10 +207,11 @@ export default function Groups() {
                     Удалить
                   </button>
                 </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+              ),
+            )}
+          </ul>
+        )}
+      </Card>
     </Layout>
   );
 }

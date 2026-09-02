@@ -124,7 +124,11 @@ export default function GroupDetail() {
       title={group?.name ?? "Группа"}
       subtitle={
         group
-          ? `${group.teacher?.full_name ?? group.teacher?.email ?? "Без преподавателя"} · ${group.students.length} студентов`
+          ? `${
+              group.teacher
+                ? `Преподаватель: ${group.teacher.full_name ?? group.teacher.email}`
+                : "Преподаватель не назначен"
+            } · ${group.students.length} студентов`
           : undefined
       }
     >

@@ -22,8 +22,13 @@ class CreateUserRequest(BaseModel):
     role: Role = STUDENT
 
 
-class SetRoleRequest(BaseModel):
-    role: Role
+class UpdateUserRequest(BaseModel):
+    """Тек жіберілген өрістер өзгереді (exclude_unset)."""
+
+    email: EmailStr | None = None
+    full_name: str | None = Field(default=None, max_length=255)
+    role: Role | None = None
+    password: str | None = Field(default=None, min_length=8, max_length=72)
 
 
 class UpdateProfileRequest(BaseModel):

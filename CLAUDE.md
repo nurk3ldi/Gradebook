@@ -82,8 +82,11 @@ npm run build
 - Бірінші admin `.env` арқылы беріледі: `ADMIN_EMAILS=["..."]` — сервер іске
   қосылғанда (`lifespan`) сол пошталарға admin рөлі қойылады.
 - Роутерді рөлмен қорғау: `Depends(require_role(ADMIN, TEACHER))` (`app/api/deps.py`).
-- Admin эндпоинттері: `GET/POST /api/users`, `PATCH /api/users/{id}/role`,
-  `DELETE /api/users/{id}`. Admin өз рөлін өзгерте де, өзін өшіре де алмайды.
+- Admin эндпоинттері: `GET/POST /api/users`, `PATCH /api/users/{id}`
+  (пошта, ФИО, рөл, пароль — тек жіберілген өрістер), `DELETE /api/users/{id}`.
+  Admin өз рөлін өзгерте де, өзін өшіре де алмайды.
+- **Маңызды**: `/users/me` роуттары `/{user_id}` үлгісінен БҰРЫН тіркелуі керек,
+  әйтпесе FastAPI «me» дегенді id ретінде оқиды.
 - `GET /api/users/me` — кез келген аутентификацияланған пайдаланушы.
 - `PATCH /api/users/me` — өз профилі: ФИО тұтас бір `full_name` өрісіне жазылады
   (бос жол — `NULL`). Frontend-те `/profile` беті.
