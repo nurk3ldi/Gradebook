@@ -37,7 +37,7 @@ frontend/
 ```bash
 # БД: локалды PostgreSQL 18 (Windows сервисі, әрқашан қосулы)
 # psql PATH-та жоқ, толық жолы:
-#   "C:\Program Files\PostgreSQL8in\psql.exe" -U postgres
+#   "C:/Program Files/PostgreSQL/18/bin/psql.exe" -U postgres
 
 # Backend (backend/ ішінен)
 .venv/Scripts/python.exe -m uvicorn app.main:app --reload   # http://localhost:8000

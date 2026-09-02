@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
-import { api } from "./lib/api";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 export default function App() {
-  const [status, setStatus] = useState("…");
-
-  useEffect(() => {
-    api<{ status: string }>("/health")
-      .then((res) => setStatus(res.status))
-      .catch(() => setStatus("offline"));
-  }, []);
-
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 text-neutral-900">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-medium tracking-tight">Gradebook</h1>
-        <p className="text-sm text-neutral-500">Backend: {status}</p>
-      </div>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
