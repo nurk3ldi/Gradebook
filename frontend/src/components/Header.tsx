@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import { ProfileMenu } from "./ProfileMenu";
 import type { User } from "../lib/types";
 
 type Props = {
@@ -8,13 +9,15 @@ type Props = {
 };
 
 export function Header({ user, onLogout }: Props) {
+  const isStaff = user?.role === "admin" || user?.role === "teacher";
+
   return (
     <header className="flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4">
-      <div className="flex items-center gap-6">
-        <Link to="/" className="text-sm font-medium text-neutral-900">
-          GradeBook
-        </Link>
-        {(user?.role === "admin" || user?.role === "teacher") && (
+      <Link to="/" className="text-sm font-medium text-neutral-900">
+        GradeBook
+      </Link>
+      <nav className="flex items-center gap-6">
+        {isStaff && (
           <Link
             to="/groups"
             className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
@@ -30,17 +33,8 @@ export function Header({ user, onLogout }: Props) {
             Пользователи
           </Link>
         )}
-      </div>
-      <div className="flex items-center gap-4">
-        {user && <span className="text-xs text-neutral-500">{user.email}</span>}
-        <button
-          type="button"
-          onClick={onLogout}
-          className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
-        >
-          Выйти
-        </button>
-      </div>
+        <ProfileMenu user={user} onLogout={onLogout} />
+      </nav>
     </header>
   );
 }
