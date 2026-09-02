@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
+import { LinkButton } from "../components/LinkButton";
 
 export default function Register() {
   function handleSubmit(event: FormEvent) {
@@ -33,6 +34,7 @@ export default function Register() {
           required
         />
         <Button type="submit">Зарегистрироваться</Button>
+        <LinkButton to="/login">Войти</LinkButton>
       </form>
     </main>
   );

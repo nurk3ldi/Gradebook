@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
+import { LinkButton } from "../components/LinkButton";
 
 export default function Login() {
   function handleSubmit(event: FormEvent) {
@@ -26,6 +27,7 @@ export default function Login() {
           required
         />
         <Button type="submit">Войти</Button>
+        <LinkButton to="/register">Регистрация</LinkButton>
         <button
           type="button"
           className="block w-full text-center text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
