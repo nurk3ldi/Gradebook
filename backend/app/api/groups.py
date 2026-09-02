@@ -90,13 +90,10 @@ async def add_student(
 ) -> GroupDetailResponse:
     group = await _group_for(db, group_id, user)
     try:
-        group = await group_service.add_student(
-            db, group, data.email, data.full_name, data.password
-        )
+        group = await group_service.add_student(db, group, data.email)
     except StudentNotFound:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            "Студент не зарегистрирован — укажите пароль, чтобы создать его",
+            status.HTTP_404_NOT_FOUND, "Пользователь с такой почтой не найден"
         ) from None
     except NotAStudent:
         raise HTTPException(

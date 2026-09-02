@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import CurrentUser, Db, require_role
 from app.models import User
-from app.roles import ADMIN
+from app.roles import ADMIN, STUDENT, TEACHER, Role
 from app.schemas.user import CreateUserRequest, SetRoleRequest, UserResponse
 from app.services import auth as auth_service, user as user_service
 from app.services.auth import EmailAlreadyUsed
@@ -12,12 +12,19 @@ from app.services.auth import EmailAlreadyUsed
 router = APIRouter()
 
 AdminUser = Annotated[User, Depends(require_role(ADMIN))]
+StaffUser = Annotated[User, Depends(require_role(ADMIN, TEACHER))]
 
 
 @router.get("")
-async def list_users(db: Db, admin: AdminUser) -> list[UserResponse]:
-    users = await user_service.list_users(db)
-    return [UserResponse.model_validate(user) for user in users]
+async def list_users(
+    db: Db, user: StaffUser, role: Role | None = None
+) -> list[UserResponse]:
+    # Преподаватель топқа қосу үшін студенттер тізімін ғана көре алады.
+    if user.role != ADMIN and role != STUDENT:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Недостаточно прав")
+
+    users = await user_service.list_users(db, role)
+    return [UserResponse.model_validate(item) for item in users]
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

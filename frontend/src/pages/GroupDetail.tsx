@@ -16,6 +16,7 @@ export default function GroupDetail() {
   const { user, logout } = useSession();
   const [group, setGroup] = useState<GroupDetailType | null>(null);
   const [teachers, setTeachers] = useState<User[]>([]);
+  const [students, setStudents] = useState<User[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,15 +28,25 @@ export default function GroupDetail() {
     }
   }, [id]);
 
+  const loadStudents = useCallback(async () => {
+    setStudents(await api<User[]>("/api/users?role=student").catch(() => []));
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     void load();
+    void loadStudents();
     if (user.role === "admin") {
       api<User[]>("/api/users")
         .then((all) => setTeachers(all.filter((item) => item.role === "teacher")))
         .catch(() => setTeachers([]));
     }
-  }, [user, load]);
+  }, [user, load, loadStudents]);
+
+  // Топта жоқ студенттер ғана таңдауға шығады.
+  const available = students.filter(
+    (student) => !group?.students.some((member) => member.id === student.id),
+  );
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,10 +69,10 @@ export default function GroupDetail() {
     }
   }
 
-  async function handleAddStudent(event: FormEvent<HTMLFormElement>) {
+  async function handleAddExisting(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const email = new FormData(event.currentTarget).get("email");
+    if (!email) return;
 
     setError("");
     setLoading(true);
@@ -69,14 +80,9 @@ export default function GroupDetail() {
       setGroup(
         await api<GroupDetailType>(`/api/groups/${id}/students`, {
           method: "POST",
-          body: JSON.stringify({
-            email: data.get("email"),
-            full_name: data.get("full_name") || null,
-            password: data.get("password") || null,
-          }),
+          body: JSON.stringify({ email }),
         }),
       );
-      form.reset();
     } catch (caught) {
       setError((caught as Error).message);
     } finally {
@@ -144,24 +150,18 @@ export default function GroupDetail() {
               </button>
             </form>
 
-            <form onSubmit={handleAddStudent} className="flex flex-wrap gap-2">
-              <Input
-                type="email"
-                name="email"
-                placeholder="Почта студента"
-                autoComplete="off"
-                required
-              />
-              <Input type="text" name="full_name" placeholder="Имя" />
-              <Input
-                type="password"
-                name="password"
-                placeholder="Пароль (если студента ещё нет)"
-                autoComplete="new-password"
-                minLength={8}
-              />
-              <Button type="submit" disabled={loading}>
-                {loading ? "Добавление…" : "Добавить студента"}
+            <form onSubmit={handleAddExisting} className="flex flex-wrap gap-2">
+              <Select name="email" disabled={available.length === 0}>
+                {available.length === 0 && <option value="">Нет свободных студентов</option>}
+                {available.map((student) => (
+                  <option key={student.id} value={student.email}>
+                    {student.full_name ? `${student.full_name} — ` : ""}
+                    {student.email}
+                  </option>
+                ))}
+              </Select>
+              <Button type="submit" disabled={loading || available.length === 0}>
+                {loading ? "Добавление…" : "Добавить"}
               </Button>
             </form>
 

@@ -80,8 +80,10 @@ npm run build
   `POST /api/groups/{id}/students`, `DELETE /api/groups/{id}/students/{student_id}`
 - Admin барлық топты көреді, преподаватель — тек өзінікін (`Group.teacher_id`).
 - Топ жасағанда преподавательді admin таңдайды; teacher өзіне ғана топ аша алады.
-- Топқа тек `student` рөліндегі пайдаланушы қосылады. Пошта тіркелмеген болса,
-  сұранысқа `password` берілсе — студент сол жерде құрылып, топқа қосылады.
+- Топқа тек `student` рөліндегі, бұрыннан тіркелген пайдаланушы қосылады.
+  Аккаунттар admin-нің «Пользователи» бетінде ғана құрылады.
+- `GET /api/users?role=student` — преподавательге де ашық (топқа қосу үшін);
+  фильтрсіз немесе басқа рөлмен сұрау тек admin-ге рұқсат.
 - `group_members` — Table (composite PK), `Group.students` — `secondary` relationship
   (`lazy="selectin"`), сондықтан жауапта студенттер бірден келеді.
 

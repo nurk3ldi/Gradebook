@@ -7,8 +7,11 @@ from app.models import User
 from app.roles import ADMIN, Role
 
 
-async def list_users(db: AsyncSession) -> Sequence[User]:
-    return (await db.scalars(select(User).order_by(User.id))).all()
+async def list_users(db: AsyncSession, role: Role | None = None) -> Sequence[User]:
+    query = select(User).order_by(User.id)
+    if role is not None:
+        query = query.where(User.role == role)
+    return (await db.scalars(query)).all()
 
 
 async def set_role(db: AsyncSession, user_id: int, role: Role) -> User | None:
