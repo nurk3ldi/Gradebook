@@ -41,9 +41,9 @@ export default function ResetPassword() {
 
   if (done) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-4">
         <div className="w-full max-w-xs space-y-3">
-          <p className="text-center text-xs text-neutral-500">Пароль обновлён</p>
+          <p className="text-center text-sm text-muted">Пароль обновлён</p>
           <LinkButton className="w-full" to="/login">Войти</LinkButton>
         </div>
       </main>
@@ -51,9 +51,9 @@ export default function ResetPassword() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
-        <p className="text-center text-xs text-neutral-500">
+        <p className="text-center text-sm text-muted">
           Код отправлен на {email}
         </p>
         <Input

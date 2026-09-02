@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
-import { Header } from "../components/Header";
+import { Layout } from "../components/Layout";
 import { Input } from "../components/Input";
 import { api } from "../lib/api";
 import { useSession } from "../lib/session";
@@ -41,15 +41,16 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <Header user={profile} onLogout={logout} />
-      <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
-        <h1 className="text-lg font-medium text-neutral-900">Профиль</h1>
-
-        {profile && (
-          <Card title={`${profile.email} · ${ROLE_LABELS[profile.role]}`}>
+    <Layout
+      user={profile}
+      onLogout={logout}
+      title="Профиль"
+      subtitle="Личные данные"
+    >
+      {profile && (
+        <Card title={`${profile.email} · ${ROLE_LABELS[profile.role]}`}>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <label htmlFor="full_name" className="block text-xs text-neutral-500">
+              <label htmlFor="full_name" className="block text-sm text-muted">
                 Фамилия, имя, отчество
               </label>
               <Input
@@ -68,7 +69,7 @@ export default function Profile() {
                   {loading ? "Сохранение…" : "Сохранить"}
                 </Button>
                 {saved && !error && (
-                  <span className="text-xs text-neutral-500 transition-opacity duration-200 starting:opacity-0">
+                  <span className="text-sm text-muted transition-opacity duration-200 starting:opacity-0">
                     Сохранено
                   </span>
                 )}
@@ -76,7 +77,6 @@ export default function Profile() {
             </form>
           </Card>
         )}
-      </main>
-    </div>
+    </Layout>
   );
 }

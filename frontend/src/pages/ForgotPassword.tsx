@@ -32,7 +32,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
         <Input
           className="w-full"

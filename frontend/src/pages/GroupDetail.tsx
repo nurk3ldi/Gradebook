@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { Button } from "../components/Button";
 import { Card, Empty } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
-import { Header } from "../components/Header";
+import { Layout } from "../components/Layout";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { api } from "../lib/api";
@@ -118,28 +118,25 @@ export default function GroupDetail() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <Header user={user} onLogout={logout} />
-      <main className="mx-auto max-w-4xl space-y-4 px-4 py-8">
+    <Layout
+      user={user}
+      onLogout={logout}
+      title={group?.name ?? "Группа"}
+      subtitle={
+        group
+          ? `${group.teacher?.full_name ?? group.teacher?.email ?? "Без преподавателя"} · ${group.students.length} студентов`
+          : undefined
+      }
+    >
         <Link
           to="/groups"
-          className="inline-block text-xs text-neutral-500 transition-colors duration-150 hover:text-accent"
+          className="inline-block text-sm text-muted transition-colors duration-150 hover:text-ink"
         >
           ← Группы
         </Link>
 
         {group && (
           <>
-            <div>
-              <h1 className="text-lg font-medium text-neutral-900">{group.name}</h1>
-              <p className="text-xs text-neutral-500">
-                {group.teacher?.full_name ??
-                  group.teacher?.email ??
-                  "Без преподавателя"}{" "}
-                · {group.students.length} студентов
-              </p>
-            </div>
-
             {error && <ErrorText>{error}</ErrorText>}
 
             <Card title="Настройки">
@@ -166,7 +163,7 @@ export default function GroupDetail() {
                 <button
                   type="button"
                   onClick={() => void handleDeleteGroup()}
-                  className="ml-auto text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600"
+                  className="ml-auto text-sm text-muted transition-colors duration-150 hover:text-red-600"
                 >
                   Удалить группу
                 </button>
@@ -176,7 +173,7 @@ export default function GroupDetail() {
             <Card title={`Студенты · ${group.students.length}`} flush>
               <form
                 onSubmit={handleAddStudent}
-                className="flex flex-wrap items-center gap-2 border-b border-neutral-200 p-4"
+                className="flex flex-wrap items-center gap-2 border-b border-line px-5 pb-5"
               >
                 <Select name="email" disabled={available.length === 0}>
                   {available.length === 0 && (
@@ -197,16 +194,16 @@ export default function GroupDetail() {
               {group.students.length === 0 ? (
                 <Empty>В группе пока нет студентов</Empty>
               ) : (
-                <ul className="divide-y divide-neutral-200">
+                <ul className="divide-y divide-line">
                   {group.students.map((student) => (
                     <li
                       key={student.id}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-neutral-50"
+                      className="flex items-center gap-3 px-5 py-3.5 transition-colors duration-150 hover:bg-canvas"
                     >
-                      <span className="w-56 truncate text-sm text-neutral-900">
+                      <span className="w-56 truncate text-sm text-ink">
                         {student.full_name ?? student.email}
                       </span>
-                      <span className="flex-1 truncate text-xs text-neutral-500">
+                      <span className="flex-1 truncate text-sm text-muted">
                         {student.full_name ? student.email : "—"}
                       </span>
                       <button
@@ -214,7 +211,7 @@ export default function GroupDetail() {
                         onClick={() =>
                           void handleRemoveStudent(student.id, student.email)
                         }
-                        className="text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600"
+                        className="text-sm text-muted transition-colors duration-150 hover:text-red-600"
                       >
                         Убрать
                       </button>
@@ -227,7 +224,6 @@ export default function GroupDetail() {
         )}
 
         {!group && error && <ErrorText>{error}</ErrorText>}
-      </main>
-    </div>
+    </Layout>
   );
 }

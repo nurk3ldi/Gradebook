@@ -40,7 +40,7 @@ export default function Login() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
         <Input
           className="w-full"
@@ -65,7 +65,7 @@ export default function Login() {
         <LinkButton className="w-full" to="/register">Регистрация</LinkButton>
         <Link
           to="/forgot-password"
-          className="block w-full text-center text-xs text-neutral-500 transition-colors duration-150 hover:text-accent"
+          className="block w-full text-center text-sm text-muted transition-colors duration-150 hover:text-ink"
         >
           Забыли пароль?
         </Link>

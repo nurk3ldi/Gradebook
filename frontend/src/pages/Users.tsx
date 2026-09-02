@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button } from "../components/Button";
 import { Card, Empty } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
-import { Header } from "../components/Header";
+import { Layout } from "../components/Layout";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { api } from "../lib/api";
@@ -82,11 +82,12 @@ export default function Users() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <Header user={user} onLogout={logout} />
-      <main className="mx-auto max-w-4xl space-y-4 px-4 py-8">
-        <h1 className="text-lg font-medium text-neutral-900">Пользователи</h1>
-
+    <Layout
+      user={user}
+      onLogout={logout}
+      title="Пользователи"
+      subtitle="Аккаунты и роли доступа"
+    >
         <Card title="Новый пользователь">
           <form onSubmit={handleCreate} className="flex flex-wrap items-center gap-2">
             <Input
@@ -131,16 +132,16 @@ export default function Users() {
           {users.length === 0 ? (
             <Empty>Пока нет пользователей</Empty>
           ) : (
-            <ul className="divide-y divide-neutral-200">
+            <ul className="divide-y divide-line">
               {users.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-neutral-50"
+                  className="flex items-center gap-3 px-5 py-3.5 transition-colors duration-150 hover:bg-canvas"
                 >
-                  <span className="w-52 truncate text-sm text-neutral-900">
+                  <span className="w-52 truncate text-sm text-ink">
                     {item.full_name ?? item.email}
                   </span>
-                  <span className="flex-1 truncate text-xs text-neutral-500">
+                  <span className="flex-1 truncate text-sm text-muted">
                     {item.full_name ? item.email : "—"}
                   </span>
                   <Select
@@ -160,7 +161,7 @@ export default function Users() {
                     type="button"
                     onClick={() => void handleDelete(item.id, item.email)}
                     disabled={item.id === user?.id}
-                    className="text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600 disabled:opacity-40 disabled:hover:text-neutral-500"
+                    className="text-sm text-muted transition-colors duration-150 hover:text-red-600 disabled:opacity-40 disabled:hover:text-muted"
                   >
                     Удалить
                   </button>
@@ -169,7 +170,6 @@ export default function Users() {
             </ul>
           )}
         </Card>
-      </main>
-    </div>
+    </Layout>
   );
 }

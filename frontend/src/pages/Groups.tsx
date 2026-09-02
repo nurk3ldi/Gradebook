@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import { Button } from "../components/Button";
 import { Card, Empty } from "../components/Card";
 import { ErrorText } from "../components/ErrorText";
-import { Header } from "../components/Header";
+import { Layout } from "../components/Layout";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { api } from "../lib/api";
@@ -75,11 +75,12 @@ export default function Groups() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <Header user={user} onLogout={logout} />
-      <main className="mx-auto max-w-4xl space-y-4 px-4 py-8">
-        <h1 className="text-lg font-medium text-neutral-900">Группы</h1>
-
+    <Layout
+      user={user}
+      onLogout={logout}
+      title="Группы"
+      subtitle="Учебные группы и их студенты"
+    >
         <Card title="Новая группа">
           <form onSubmit={handleCreate} className="flex flex-wrap items-center gap-2">
             <Input
@@ -111,30 +112,30 @@ export default function Groups() {
           {groups.length === 0 ? (
             <Empty>Пока нет ни одной группы</Empty>
           ) : (
-            <ul className="divide-y divide-neutral-200">
+            <ul className="divide-y divide-line">
               {groups.map((group) => (
                 <li
                   key={group.id}
-                  className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-neutral-50"
+                  className="flex items-center gap-3 px-5 py-3.5 transition-colors duration-150 hover:bg-canvas"
                 >
                   <Link
                     to={`/groups/${group.id}`}
-                    className="w-44 truncate text-sm text-neutral-900 transition-colors duration-150 hover:text-accent"
+                    className="w-44 truncate text-sm text-ink transition-colors duration-150 hover:text-ink"
                   >
                     {group.name}
                   </Link>
-                  <span className="flex-1 truncate text-xs text-neutral-500">
+                  <span className="flex-1 truncate text-sm text-muted">
                     {group.teacher?.full_name ??
                       group.teacher?.email ??
                       "Без преподавателя"}
                   </span>
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-sm text-muted">
                     {group.students_count} студ.
                   </span>
                   <button
                     type="button"
                     onClick={() => void handleDelete(group.id, group.name)}
-                    className="text-xs text-neutral-500 transition-colors duration-150 hover:text-red-600"
+                    className="text-sm text-muted transition-colors duration-150 hover:text-red-600"
                   >
                     Удалить
                   </button>
@@ -143,7 +144,6 @@ export default function Groups() {
             </ul>
           )}
         </Card>
-      </main>
-    </div>
+    </Layout>
   );
 }
