@@ -1,12 +1,42 @@
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
 
 import { Button } from "../components/Button";
+import { ErrorText } from "../components/ErrorText";
 import { Input } from "../components/Input";
 import { LinkButton } from "../components/LinkButton";
+import { api } from "../lib/api";
+import { setToken } from "../lib/auth";
 
 export default function Login() {
-  function handleSubmit(event: FormEvent) {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = new FormData(event.currentTarget);
+
+    setError("");
+    setLoading(true);
+    try {
+      const { access_token } = await api<{ access_token: string }>(
+        "/api/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: form.get("email"),
+            password: form.get("password"),
+          }),
+        },
+      );
+      setToken(access_token);
+      navigate("/");
+    } catch (caught) {
+      setError((caught as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -26,14 +56,17 @@ export default function Login() {
           autoComplete="current-password"
           required
         />
-        <Button type="submit">Войти</Button>
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button type="submit" disabled={loading}>
+          {loading ? "Вход…" : "Войти"}
+        </Button>
         <LinkButton to="/register">Регистрация</LinkButton>
-        <button
-          type="button"
+        <Link
+          to="/forgot-password"
           className="block w-full text-center text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
         >
           Забыли пароль?
-        </button>
+        </Link>
       </form>
     </main>
   );

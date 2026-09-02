@@ -1,16 +1,17 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router";
 
 import { Button } from "../components/Button";
 import { ErrorText } from "../components/ErrorText";
 import { Input } from "../components/Input";
 import { LinkButton } from "../components/LinkButton";
 import { api } from "../lib/api";
-import { setToken } from "../lib/auth";
 
-export default function Register() {
-  const navigate = useNavigate();
+export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -26,15 +27,11 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const { access_token } = await api<{ access_token: string }>(
-        "/api/auth/register",
-        {
-          method: "POST",
-          body: JSON.stringify({ email: form.get("email"), password }),
-        },
-      );
-      setToken(access_token);
-      navigate("/");
+      await api("/api/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+      });
+      setDone(true);
     } catch (caught) {
       setError((caught as Error).message);
     } finally {
@@ -42,20 +39,24 @@ export default function Register() {
     }
   }
 
+  if (done) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+        <div className="w-full max-w-xs space-y-3">
+          <p className="text-center text-xs text-neutral-500">Пароль обновлён</p>
+          <LinkButton to="/login">Войти</LinkButton>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
         <Input
-          type="email"
-          name="email"
-          placeholder="Почта"
-          autoComplete="email"
-          required
-        />
-        <Input
           type="password"
           name="password"
-          placeholder="Пароль"
+          placeholder="Новый пароль"
           autoComplete="new-password"
           minLength={8}
           required
@@ -70,7 +71,7 @@ export default function Register() {
         />
         {error && <ErrorText>{error}</ErrorText>}
         <Button type="submit" disabled={loading}>
-          {loading ? "Регистрация…" : "Зарегистрироваться"}
+          {loading ? "Сохранение…" : "Сохранить пароль"}
         </Button>
         <LinkButton to="/login">Войти</LinkButton>
       </form>

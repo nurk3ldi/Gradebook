@@ -6,40 +6,49 @@ import { ErrorText } from "../components/ErrorText";
 import { Input } from "../components/Input";
 import { LinkButton } from "../components/LinkButton";
 import { api } from "../lib/api";
-import { setToken } from "../lib/auth";
 
-export default function Register() {
+export default function ForgotPassword() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [sent, setSent] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const password = String(form.get("password"));
-
-    if (password !== String(form.get("passwordConfirm"))) {
-      setError("Пароли не совпадают");
-      return;
-    }
 
     setError("");
     setLoading(true);
     try {
-      const { access_token } = await api<{ access_token: string }>(
-        "/api/auth/register",
+      const result = await api<{ message: string; reset_token: string | null }>(
+        "/api/auth/forgot-password",
         {
           method: "POST",
-          body: JSON.stringify({ email: form.get("email"), password }),
+          body: JSON.stringify({ email: form.get("email") }),
         },
       );
-      setToken(access_token);
-      navigate("/");
+      // Дев режимде пошта жіберілмейді — сервер токенді бірден қайтарады.
+      if (result.reset_token) {
+        navigate(`/reset-password?token=${result.reset_token}`);
+        return;
+      }
+      setSent(result.message);
     } catch (caught) {
       setError((caught as Error).message);
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+        <div className="w-full max-w-xs space-y-3">
+          <p className="text-center text-xs text-neutral-500">{sent}</p>
+          <LinkButton to="/login">Войти</LinkButton>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -52,25 +61,9 @@ export default function Register() {
           autoComplete="email"
           required
         />
-        <Input
-          type="password"
-          name="password"
-          placeholder="Пароль"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
-        <Input
-          type="password"
-          name="passwordConfirm"
-          placeholder="Повторите пароль"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
         {error && <ErrorText>{error}</ErrorText>}
         <Button type="submit" disabled={loading}>
-          {loading ? "Регистрация…" : "Зарегистрироваться"}
+          {loading ? "Отправка…" : "Сбросить пароль"}
         </Button>
         <LinkButton to="/login">Войти</LinkButton>
       </form>
