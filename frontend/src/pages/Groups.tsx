@@ -61,7 +61,9 @@ export default function Groups() {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: number, name: string) {
+    if (!confirm(`Удалить группу «${name}»?`)) return;
+
     setError("");
     try {
       await api(`/api/groups/${id}`, { method: "DELETE" });
@@ -111,7 +113,7 @@ export default function Groups() {
               </span>
               <button
                 type="button"
-                onClick={() => void handleDelete(group.id)}
+                onClick={() => void handleDelete(group.id, group.name)}
                 className="text-xs text-neutral-400 transition-colors duration-150 hover:text-red-600"
               >
                 Удалить

@@ -4,7 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Group, User
-from app.roles import ADMIN, TEACHER
+from app.roles import ADMIN, STUDENT, TEACHER
+from app.services.auth import register
 
 
 class StudentNotFound(Exception):
@@ -75,11 +76,20 @@ async def delete_group(db: AsyncSession, group: Group) -> None:
     await db.commit()
 
 
-async def add_student(db: AsyncSession, group: Group, email: str) -> Group:
+async def add_student(
+    db: AsyncSession,
+    group: Group,
+    email: str,
+    full_name: str | None = None,
+    password: str | None = None,
+) -> Group:
     student = await db.scalar(select(User).where(User.email == email))
     if student is None:
-        raise StudentNotFound
-    if student.role != "student":
+        # Тіркелмеген студентті осы жерде құрып жіберуге болады.
+        if password is None:
+            raise StudentNotFound
+        student = await register(db, email, password, STUDENT, full_name)
+    elif student.role != STUDENT:
         raise NotAStudent
     if any(existing.id == student.id for existing in group.students):
         raise AlreadyInGroup

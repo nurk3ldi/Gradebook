@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import { Button } from "../components/Button";
 import { ErrorText } from "../components/ErrorText";
@@ -12,6 +12,7 @@ import type { GroupDetail as GroupDetailType, User } from "../lib/types";
 
 export default function GroupDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, logout } = useSession();
   const [group, setGroup] = useState<GroupDetailType | null>(null);
   const [teachers, setTeachers] = useState<User[]>([]);
@@ -60,7 +61,7 @@ export default function GroupDetail() {
   async function handleAddStudent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
-    const email = new FormData(form).get("email");
+    const data = new FormData(form);
 
     setError("");
     setLoading(true);
@@ -68,7 +69,11 @@ export default function GroupDetail() {
       setGroup(
         await api<GroupDetailType>(`/api/groups/${id}/students`, {
           method: "POST",
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({
+            email: data.get("email"),
+            full_name: data.get("full_name") || null,
+            password: data.get("password") || null,
+          }),
         }),
       );
       form.reset();
@@ -79,7 +84,20 @@ export default function GroupDetail() {
     }
   }
 
-  async function handleRemoveStudent(studentId: number) {
+  async function handleDeleteGroup() {
+    if (!group || !confirm(`Удалить группу «${group.name}»?`)) return;
+
+    try {
+      await api(`/api/groups/${id}`, { method: "DELETE" });
+      navigate("/groups", { replace: true });
+    } catch (caught) {
+      setError((caught as Error).message);
+    }
+  }
+
+  async function handleRemoveStudent(studentId: number, email: string) {
+    if (!confirm(`Убрать ${email} из группы?`)) return;
+
     setError("");
     try {
       setGroup(
@@ -117,6 +135,13 @@ export default function GroupDetail() {
                 </Select>
               )}
               <Button type="submit">Сохранить</Button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteGroup()}
+                className="text-xs text-neutral-400 transition-colors duration-150 hover:text-red-600"
+              >
+                Удалить группу
+              </button>
             </form>
 
             <form onSubmit={handleAddStudent} className="flex flex-wrap gap-2">
@@ -126,6 +151,14 @@ export default function GroupDetail() {
                 placeholder="Почта студента"
                 autoComplete="off"
                 required
+              />
+              <Input type="text" name="full_name" placeholder="Имя" />
+              <Input
+                type="password"
+                name="password"
+                placeholder="Пароль (если студента ещё нет)"
+                autoComplete="new-password"
+                minLength={8}
               />
               <Button type="submit" disabled={loading}>
                 {loading ? "Добавление…" : "Добавить студента"}
@@ -145,7 +178,7 @@ export default function GroupDetail() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => void handleRemoveStudent(student.id)}
+                    onClick={() => void handleRemoveStudent(student.id, student.email)}
                     className="text-xs text-neutral-400 transition-colors duration-150 hover:text-red-600"
                   >
                     Удалить
