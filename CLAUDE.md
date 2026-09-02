@@ -74,6 +74,16 @@ npm run build
   `DELETE /api/users/{id}`. Admin өз рөлін өзгерте де, өзін өшіре де алмайды.
 - `GET /api/users/me` — кез келген аутентификацияланған пайдаланушы.
 
+## Топтар
+
+- `GET/POST /api/groups`, `GET/PATCH/DELETE /api/groups/{id}`,
+  `POST /api/groups/{id}/students`, `DELETE /api/groups/{id}/students/{student_id}`
+- Admin барлық топты көреді, преподаватель — тек өзінікін (`Group.teacher_id`).
+- Топ жасағанда преподавательді admin таңдайды; teacher өзіне ғана топ аша алады.
+- Топқа тек `student` рөліндегі, бұрыннан тіркелген пайдаланушы қосылады.
+- `group_members` — Table (composite PK), `Group.students` — `secondary` relationship
+  (`lazy="selectin"`), сондықтан жауапта студенттер бірден келеді.
+
 ## Auth
 
 - `POST /api/auth/register` · `login` · `forgot-password` · `reset-password` · `GET /me`
@@ -92,7 +102,7 @@ npm run build
 
 1. ~~Auth: тіркелу/кіру (JWT), пароль сбросы~~ ✅
 2. ~~Үш рөл: admin/teacher/student, пайдаланушыларды басқару~~ ✅
-3. Топтар мен студенттер
+3. ~~Топтар мен студенттер~~ ✅
 4. Дисциплиналар → тақырыптар → тапсырмалар
 5. Тапсырма тапсыру (файл жүктеу, мәтін, сілтеме), нұсқалар тарихы
 6. Тексеру: балл, комментарий, «доработкаға» қайтару

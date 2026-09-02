@@ -14,6 +14,14 @@ export function Header({ user, onLogout }: Props) {
         <Link to="/" className="text-sm font-medium text-neutral-900">
           GradeBook
         </Link>
+        {(user?.role === "admin" || user?.role === "teacher") && (
+          <Link
+            to="/groups"
+            className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
+          >
+            Группы
+          </Link>
+        )}
         {user?.role === "admin" && (
           <Link
             to="/users"

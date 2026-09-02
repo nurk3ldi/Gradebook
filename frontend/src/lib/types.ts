@@ -13,3 +13,13 @@ export const ROLE_LABELS: Record<Role, string> = {
   teacher: "Преподаватель",
   student: "Студент",
 };
+
+export type Group = {
+  id: number;
+  name: string;
+  teacher: User | null;
+  students_count: number;
+  created_at: string;
+};
+
+export type GroupDetail = Group & { students: User[] };
