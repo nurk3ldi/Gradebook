@@ -24,3 +24,8 @@ class CreateUserRequest(BaseModel):
 
 class SetRoleRequest(BaseModel):
     role: Role
+
+
+class UpdateProfileRequest(BaseModel):
+    # ФИО тұтас бір өріске жазылады.
+    full_name: str | None = Field(default=None, max_length=255)

@@ -5,7 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.deps import CurrentUser, Db, require_role
 from app.models import User
 from app.roles import ADMIN, STUDENT, TEACHER, Role
-from app.schemas.user import CreateUserRequest, SetRoleRequest, UserResponse
+from app.schemas.user import (
+    CreateUserRequest,
+    SetRoleRequest,
+    UpdateProfileRequest,
+    UserResponse,
+)
 from app.services import auth as auth_service, user as user_service
 from app.services.auth import EmailAlreadyUsed
 
@@ -70,4 +75,15 @@ async def delete_user(user_id: int, db: Db, admin: AdminUser) -> None:
 
 @router.get("/me")
 async def me(user: CurrentUser) -> UserResponse:
+    return UserResponse.model_validate(user)
+
+
+@router.patch("/me")
+async def update_me(
+    data: UpdateProfileRequest, db: Db, user: CurrentUser
+) -> UserResponse:
+    name = (data.full_name or "").strip()
+    user.full_name = name or None
+    await db.commit()
+    await db.refresh(user)
     return UserResponse.model_validate(user)

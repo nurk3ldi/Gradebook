@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 
 import { ROLE_LABELS, type User } from "../lib/types";
 
@@ -53,11 +54,20 @@ export function ProfileMenu({ user, onLogout }: Props) {
       {open && (
         <div className="absolute right-0 top-full z-10 mt-2 w-52 origin-top-right rounded-md border border-neutral-200 bg-white p-1 shadow-sm transition duration-150 ease-out starting:scale-95 starting:opacity-0">
           <div className="px-2 py-1.5">
-            <p className="truncate text-xs text-neutral-900">{user?.email}</p>
+            <p className="truncate text-xs text-neutral-900">
+              {user?.full_name ?? user?.email}
+            </p>
             {user && (
               <p className="text-xs text-neutral-500">{ROLE_LABELS[user.role]}</p>
             )}
           </div>
+          <Link
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className="block rounded px-2 py-1.5 text-xs text-neutral-500 transition-colors duration-150 hover:bg-neutral-50 hover:text-neutral-900"
+          >
+            Профиль
+          </Link>
           <button
             type="button"
             onClick={onLogout}

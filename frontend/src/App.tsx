@@ -5,6 +5,7 @@ import GroupDetail from "./pages/GroupDetail";
 import Groups from "./pages/Groups";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
 import Users from "./pages/Users";
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/users" element={<Users />} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/groups/:id" element={<GroupDetail />} />

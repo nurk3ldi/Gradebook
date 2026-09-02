@@ -1,14 +1,20 @@
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 import { ProfileMenu } from "./ProfileMenu";
 import type { User } from "../lib/types";
 
-type Props = {
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive
+    ? "text-xs text-accent"
+    : "text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900";
+
+export function Header({
+  user,
+  onLogout,
+}: {
   user: User | null;
   onLogout: () => void;
-};
-
-export function Header({ user, onLogout }: Props) {
+}) {
   const isStaff = user?.role === "admin" || user?.role === "teacher";
 
   return (
@@ -18,20 +24,14 @@ export function Header({ user, onLogout }: Props) {
       </Link>
       <nav className="flex items-center gap-6">
         {isStaff && (
-          <Link
-            to="/groups"
-            className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
-          >
+          <NavLink to="/groups" className={linkClass}>
             Группы
-          </Link>
+          </NavLink>
         )}
         {user?.role === "admin" && (
-          <Link
-            to="/users"
-            className="text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
-          >
+          <NavLink to="/users" className={linkClass}>
             Пользователи
-          </Link>
+          </NavLink>
         )}
         <ProfileMenu user={user} onLogout={onLogout} />
       </nav>

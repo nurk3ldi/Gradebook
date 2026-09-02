@@ -63,7 +63,7 @@ export default function Login() {
         <LinkButton to="/register">Регистрация</LinkButton>
         <Link
           to="/forgot-password"
-          className="block w-full text-center text-xs text-neutral-500 transition-colors duration-150 hover:text-neutral-900"
+          className="block w-full text-center text-xs text-neutral-500 transition-colors duration-150 hover:text-accent"
         >
           Забыли пароль?
         </Link>
