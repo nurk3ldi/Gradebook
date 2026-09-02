@@ -5,7 +5,7 @@ export function LinkButton({ className = "", ...props }: ComponentProps<typeof L
   return (
     <Link
       {...props}
-      className={`block rounded-md border border-neutral-200 bg-white px-3 py-2 text-center text-sm font-medium text-neutral-900 transition-[transform,color,border-color] duration-150 ease-out hover:border-accent hover:text-accent active:scale-[0.97] ${className}`}
+      className={`block rounded-xl border border-line bg-surface px-4 py-2.5 text-center text-sm font-semibold text-ink transition-[transform,border-color] duration-150 ease-out hover:border-ink active:scale-[0.97] ${className}`}
     />
   );
 }

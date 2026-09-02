@@ -10,18 +10,18 @@ type Props = {
 
 export function Card({ title, action, children, flush }: Props) {
   return (
-    <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+    <section className="overflow-hidden rounded-2xl border border-line bg-surface">
       {title && (
-        <header className="flex items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3">
-          <h2 className="text-sm font-medium text-neutral-900">{title}</h2>
+        <header className="flex items-center justify-between gap-3 px-5 pt-5 pb-4">
+          <h2 className="text-base font-bold text-ink">{title}</h2>
           {action}
         </header>
       )}
-      <div className={flush ? "" : "p-4"}>{children}</div>
+      <div className={flush ? "" : "px-5 pb-5"}>{children}</div>
     </section>
   );
 }
 
 export function Empty({ children }: { children: string }) {
-  return <p className="px-4 py-6 text-center text-xs text-neutral-500">{children}</p>;
+  return <p className="px-5 py-8 text-center text-sm text-muted">{children}</p>;
 }

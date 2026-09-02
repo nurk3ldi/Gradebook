@@ -1,21 +1,36 @@
 @import "tailwindcss";
 
-/* Жалғыз акцент түс. Ауыстыру керек болса — осы екі жол ғана өзгереді. */
+/* Дизайн жүйесі: төрт негізгі түс + оқылатын әлсіз мәтін реңкі. */
 @theme {
-  --color-accent: #4f46e5;
-  --color-accent-hover: #4338ca;
+  --color-ink: #343434;
+  --color-line: #d2d2d2;
+  --color-canvas: #fbfbfb;
+  --color-surface: #ffffff;
+  --color-muted: #6b6b6b;
+  --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
-  /* Tailwind preflight түймелерге cursor: default береді. */
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Тақырыптар қалың әрі тығыз — референстегідей. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
 
-  /* Пернетақтамен жүргенде фокус әрқашан көрінеді. */
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 

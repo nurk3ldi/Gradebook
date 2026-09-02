@@ -3,6 +3,12 @@ import { Link } from "react-router";
 
 import { ROLE_LABELS, type User } from "../lib/types";
 
+function initials(user: User | null) {
+  const source = user?.full_name ?? user?.email ?? "";
+  const parts = source.split(/[\s.@_-]+/).filter(Boolean);
+  return (parts[0]?.[0] ?? "?").toUpperCase();
+}
+
 type Props = {
   user: User | null;
   onLogout: () => void;
@@ -31,47 +37,35 @@ export function ProfileMenu({ user, onLogout }: Props) {
   }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-label="Профиль"
-        className="flex size-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 transition-transform duration-150 ease-out hover:text-neutral-900 active:scale-[0.94]"
+        className="flex size-11 items-center justify-center rounded-full border border-line bg-surface text-sm font-semibold text-ink transition-transform duration-150 ease-out hover:border-ink active:scale-[0.94]"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          strokeLinecap="round"
-          className="size-4"
-        >
-          <circle cx="12" cy="8" r="3.5" />
-          <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
-        </svg>
+        {initials(user)}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-10 mt-2 w-52 origin-top-right rounded-md border border-neutral-200 bg-white p-1 shadow-sm transition duration-150 ease-out starting:scale-95 starting:opacity-0">
-          <div className="px-2 py-1.5">
-            <p className="truncate text-xs text-neutral-900">
+        <div className="absolute right-0 top-full z-10 mt-2 w-56 origin-top-right rounded-2xl border border-line bg-surface p-1.5 transition duration-150 ease-out starting:scale-95 starting:opacity-0">
+          <div className="px-3 py-2">
+            <p className="truncate text-sm font-semibold text-ink">
               {user?.full_name ?? user?.email}
             </p>
-            {user && (
-              <p className="text-xs text-neutral-500">{ROLE_LABELS[user.role]}</p>
-            )}
+            {user && <p className="text-xs text-muted">{ROLE_LABELS[user.role]}</p>}
           </div>
           <Link
             to="/profile"
             onClick={() => setOpen(false)}
-            className="block rounded px-2 py-1.5 text-xs text-neutral-500 transition-colors duration-150 hover:bg-neutral-50 hover:text-neutral-900"
+            className="block rounded-xl px-3 py-2 text-sm text-muted transition-colors duration-150 hover:bg-canvas hover:text-ink"
           >
             Профиль
           </Link>
           <button
             type="button"
             onClick={onLogout}
-            className="w-full rounded px-2 py-1.5 text-left text-xs text-neutral-500 transition-colors duration-150 hover:bg-neutral-50 hover:text-neutral-900"
+            className="w-full rounded-xl px-3 py-2 text-left text-sm text-muted transition-colors duration-150 hover:bg-canvas hover:text-ink"
           >
             Выйти
           </button>
