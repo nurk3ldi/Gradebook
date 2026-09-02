@@ -23,6 +23,11 @@ def password_fingerprint(password_hash: str) -> str:
     return hashlib.sha256(password_hash.encode()).hexdigest()[:16]
 
 
+def hash_code(code: str) -> str:
+    """Сброс кодын БД-да ашық сақтамау үшін."""
+    return hashlib.sha256(code.encode()).hexdigest()
+
+
 def create_token(subject: str, ttl: timedelta, **claims: Any) -> str:
     now = datetime.now(UTC)
     payload = {"sub": subject, "iat": now, "exp": now + ttl, **claims}

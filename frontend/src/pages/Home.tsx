@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
-import { Button } from "../components/Button";
+import { Header } from "../components/Header";
 import { api } from "../lib/api";
 import { clearToken, getToken } from "../lib/auth";
 
@@ -29,16 +29,10 @@ export default function Home() {
     navigate("/login", { replace: true });
   }
 
-  if (!user) return null;
-
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-xs space-y-3">
-        <p className="text-center text-sm text-neutral-900">{user.email}</p>
-        <Button type="button" onClick={handleLogout}>
-          Выйти
-        </Button>
-      </div>
-    </main>
+    <div className="min-h-dvh bg-neutral-50">
+      <Header email={user?.email} onLogout={handleLogout} />
+      <main className="px-4 py-6" />
+    </div>
   );
 }

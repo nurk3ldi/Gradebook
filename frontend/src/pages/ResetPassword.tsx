@@ -9,7 +9,7 @@ import { api } from "../lib/api";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") ?? "";
+  const email = searchParams.get("email") ?? "";
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function ResetPassword() {
     try {
       await api("/api/auth/reset-password", {
         method: "POST",
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ email, code: form.get("code"), password }),
       });
       setDone(true);
     } catch (caught) {
@@ -53,6 +53,19 @@ export default function ResetPassword() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
+        <p className="text-center text-xs text-neutral-500">
+          Код отправлен на {email}
+        </p>
+        <Input
+          type="text"
+          name="code"
+          placeholder="Код из письма"
+          inputMode="numeric"
+          pattern="[0-9]{6}"
+          maxLength={6}
+          autoComplete="one-time-code"
+          required
+        />
         <Input
           type="password"
           name="password"
@@ -73,7 +86,7 @@ export default function ResetPassword() {
         <Button type="submit" disabled={loading}>
           {loading ? "Сохранение…" : "Сохранить пароль"}
         </Button>
-        <LinkButton to="/login">Войти</LinkButton>
+        <LinkButton to="/forgot-password">Отправить код заново</LinkButton>
       </form>
     </main>
   );

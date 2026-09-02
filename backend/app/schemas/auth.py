@@ -19,7 +19,8 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    token: str
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
     password: str = Password
 
 
@@ -38,5 +39,3 @@ class UserResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
-    # Дев режимінде ғана: пошта жіберілмейтіндіктен токен осында қайтарылады.
-    reset_token: str | None = None

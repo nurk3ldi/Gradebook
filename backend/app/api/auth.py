@@ -14,8 +14,8 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
 )
-from app.services import auth as auth_service
-from app.services.auth import EmailAlreadyUsed, InvalidResetToken
+from app.services import auth as auth_service, email as email_service
+from app.services.auth import EmailAlreadyUsed, InvalidResetCode, TooManyAttempts
 
 router = APIRouter()
 
@@ -44,22 +44,30 @@ async def forgot_password(data: ForgotPasswordRequest, db: Db) -> MessageRespons
     user = await auth_service.get_by_email(db, data.email)
 
     # Пошта тіркелген-тіркелмегенін ашпаймыз: жауап әрқашан бірдей.
-    response = MessageResponse(
-        message="Если такая почта зарегистрирована, мы отправили ссылку для сброса пароля"
+    if user is not None:
+        code = await auth_service.create_reset_code(db, user)
+        await email_service.send_reset_code(user.email, code)
+    elif settings.debug:
+        # Жауап әрқашан бірдей болғандықтан, дев режимде себебі логта көрінеді.
+        print(f"[dev] {data.email} тіркелмеген — код жіберілмеді", flush=True)
+
+    return MessageResponse(
+        message="Если такая почта зарегистрирована, мы отправили код на неё"
     )
-    if user is not None and settings.debug:
-        # TODO: прод режимде токенді поштаға жіберу керек (SMTP әлі жоқ).
-        response.reset_token = auth_service.create_reset_token(user)
-    return response
 
 
 @router.post("/reset-password")
 async def reset_password(data: ResetPasswordRequest, db: Db) -> MessageResponse:
     try:
-        await auth_service.reset_password(db, data.token, data.password)
-    except InvalidResetToken:
+        await auth_service.reset_password(db, data.email, data.code, data.password)
+    except TooManyAttempts:
         raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Ссылка недействительна или устарела"
+            status.HTTP_400_BAD_REQUEST,
+            "Слишком много попыток. Запросите новый код",
+        ) from None
+    except InvalidResetCode:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Неверный или устаревший код"
         ) from None
     return MessageResponse(message="Пароль обновлён")
 

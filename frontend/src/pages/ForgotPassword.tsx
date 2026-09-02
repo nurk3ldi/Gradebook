@@ -10,45 +10,25 @@ import { api } from "../lib/api";
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [sent, setSent] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const email = String(new FormData(event.currentTarget).get("email"));
 
     setError("");
     setLoading(true);
     try {
-      const result = await api<{ message: string; reset_token: string | null }>(
-        "/api/auth/forgot-password",
-        {
-          method: "POST",
-          body: JSON.stringify({ email: form.get("email") }),
-        },
-      );
-      // Дев режимде пошта жіберілмейді — сервер токенді бірден қайтарады.
-      if (result.reset_token) {
-        navigate(`/reset-password?token=${result.reset_token}`);
-        return;
-      }
-      setSent(result.message);
+      await api("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+      navigate(`/reset-password?email=${encodeURIComponent(email)}`);
     } catch (caught) {
       setError((caught as Error).message);
     } finally {
       setLoading(false);
     }
-  }
-
-  if (sent) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
-        <div className="w-full max-w-xs space-y-3">
-          <p className="text-center text-xs text-neutral-500">{sent}</p>
-          <LinkButton to="/login">Войти</LinkButton>
-        </div>
-      </main>
-    );
   }
 
   return (
@@ -63,7 +43,7 @@ export default function ForgotPassword() {
         />
         {error && <ErrorText>{error}</ErrorText>}
         <Button type="submit" disabled={loading}>
-          {loading ? "Отправка…" : "Сбросить пароль"}
+          {loading ? "Отправка…" : "Отправить код"}
         </Button>
         <LinkButton to="/login">Войти</LinkButton>
       </form>
